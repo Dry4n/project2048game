@@ -1,0 +1,30 @@
+body{
+    background-color: #A7C7E7;
+}
+
+.gameFrame {
+    display: grid;
+    grid-template-areas:
+        "00 01 02 03"
+        "10 11 12 13"
+        "20 21 22 23"
+        "30 31 32 33";
+    max-width: auto;
+    justify-content: center;
+    margin: 5rem auto;
+}
+
+.tile {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border: 3px solid #A7C7E7;
+    border-radius: 12%;
+    height: 100px;
+    width: 100px;
+    background-color: #FDFD96;
+    font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+    font-size: 2rem;
+    font-weight: bolder;
+    color: #A7C7E7;
+}

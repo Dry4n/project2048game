@@ -181,12 +181,40 @@ function printScore() {
     document.getElementById("scoreBoard").innerHTML = `Score: ${score}`
 }
 
-//GAME LOGIC
+function restart() {
+    document.getElementById('gameOver').style.opacity = 0;
+
+    board = [
+        [0, 0, 0, 0],
+        [0, 0, 0, 0],
+        [0, 0, 0, 0],
+        [0, 0, 0, 0]
+    ]
+    score = 0;
+    spawnPiece();
+    renderBoard();
+    printScore();
+}
+
+function printGameOver() {
+    document.getElementById('gameOver').style.opacity = 100;
+}
+
+function printVictory() {
+
+}
+
+
 spawnPiece();
 renderBoard();
 printScore();
 
 document.addEventListener("keydown", function (event) {
+    if (checkGameOver()) {
+        printGameOver();
+        return;
+    }
+
     let boardCopy = board.map(row => row.slice());
     switch (event.key) {
         case 'ArrowLeft':
@@ -213,3 +241,8 @@ document.addEventListener("keydown", function (event) {
     printScore();
     renderBoard();
 })
+
+document.getElementById('gameOver').style.opacity = 0;
+
+let retryButton = document.getElementById("retry");
+retryButton.addEventListener('click', restart);

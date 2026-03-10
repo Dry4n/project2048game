@@ -15,7 +15,7 @@ body {
     font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
     text-align: center;
     font-weight: bolder;
-    font-size: larger;    
+    font-size: larger;
     color: #25343F;
 }
 
@@ -42,4 +42,38 @@ body {
     font-weight: bolder;
     font-size: larger;
     color: #25343F;
+}
+
+.gameOver {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    padding: 10px 40px;
+    border-radius: 25px;
+    z-index: 9999;
+    background-color: #FFC067;
+    font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+    font-size: 3rem;
+    color: #25343F;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.retry {
+    background-color: #EAEFEF;
+    border: none;
+    margin-top: -20px;
+    padding: 10px 20px;
+    border-radius: 9999px;
+    font-size: 1rem;
+    font-family: inherit;
+    font-weight: bolder;
+}
+
+.retry:hover {
+    background-color: #25343F;
+    color: #EAEFEF;
+    cursor: pointer;
 }

@@ -28,13 +28,14 @@ const textColors = {
     2048: "#1a1a1a",
 }
 
+let goalReached = false;
 let score = 0;
 let moved = false;
 let board = [
     [0, 0, 0, 0],
     [0, 0, 0, 0],
     [0, 0, 0, 0],
-    [0, 0, 0, 0]
+    [512, 512, 1024, 0]
 ]
 
 function renderBoard() {
@@ -51,8 +52,10 @@ function renderBoard() {
 
 function spawnPiece() {
     let coords = genRandomTile();
+    let tile = Math.round(Math.random() * 9);
+
     if (board[coords[0]][coords[1]] == 0) {
-        board[coords[0]][coords[1]] = 2;
+        board[coords[0]][coords[1]] = (tile == 0) ? 4 : 2;
     } else {
         spawnPiece();
     }
@@ -67,7 +70,6 @@ function genRandomTile() {
 
 function checkGameOver() {
     return (isBoardFull() && !hasValidMoves());
-
 }
 
 function isBoardFull() {
@@ -118,6 +120,7 @@ function moveLeft() {
                 if (row[i] == row[i + 1]) {
                     row[i] *= 2
                     score += row[i];
+                    goalReached = row[i] == 2048 ? true : false;
                     row.splice(i + 1, 1)
                 }
             }
@@ -183,7 +186,9 @@ function printScore() {
 
 function restart() {
     document.getElementById('gameOver').style.opacity = 0;
+    document.getElementById('victory').style.opacity = 0;
 
+    goalReached = false;
     board = [
         [0, 0, 0, 0],
         [0, 0, 0, 0],
@@ -198,12 +203,13 @@ function restart() {
 
 function printGameOver() {
     document.getElementById('gameOver').style.opacity = 100;
+    document.getElementById('gameOver').style.pointerEvents = "all";
 }
 
 function printVictory() {
-
+    document.getElementById('victory').style.opacity = 100;
+    document.getElementById('victory').style.pointerEvents = "all";
 }
-
 
 spawnPiece();
 renderBoard();
@@ -240,9 +246,20 @@ document.addEventListener("keydown", function (event) {
     if (!checkGameOver() && moved) { spawnPiece(); }
     printScore();
     renderBoard();
+    if (goalReached) {
+        printVictory();
+        return;
+    }
 })
 
 document.getElementById('gameOver').style.opacity = 0;
+document.getElementById('gameOver').style.pointerEvents = "none";
+document.getElementById('victory').style.opacity = 0;
+document.getElementById('victory').style.pointerEvents = "none";
 
 let retryButton = document.getElementById("retry");
+retryButton.addEventListener('click', restart);
+let restartButton = document.getElementById("restart");
+retryButton.addEventListener('click', restart);
+let victoryButton = document.getElementById("victory");
 retryButton.addEventListener('click', restart);

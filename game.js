@@ -11,6 +11,7 @@ const tileColors = {
     512: "#9900aa",
     1024: "#cc6600",
     2048: "#ffaa00",
+
 }
 
 const textColors = {
@@ -35,7 +36,7 @@ let board = [
     [0, 0, 0, 0],
     [0, 0, 0, 0],
     [0, 0, 0, 0],
-    [512, 512, 1024, 0]
+    [0, 0, 0, 0],
 ]
 
 function renderBoard() {
@@ -43,9 +44,8 @@ function renderBoard() {
         for (let j = 0; j < board.length; j++) {
             let id = "" + i + j;
             document.getElementById(id).innerHTML = board[i][j] != 0 ? board[i][j] : "";
-            document.getElementById(id).style.backgroundColor = tileColors[board[i][j]];
-            document.getElementById(id).style.backgroundColor = tileColors[board[i][j]];
-            document.getElementById(id).style.color = textColors[board[i][j]];
+            document.getElementById(id).style.backgroundColor = tileColors[board[i][j]] || "#FFCC00";
+            document.getElementById(id).style.color = textColors[board[i][j]] || "#004c8e";
         }
     }
 }
@@ -54,11 +54,10 @@ function spawnPiece() {
     let coords = genRandomTile();
     let tile = Math.round(Math.random() * 9);
 
-    if (board[coords[0]][coords[1]] == 0) {
-        board[coords[0]][coords[1]] = (tile == 0) ? 4 : 2;
-    } else {
-        spawnPiece();
+    while (board[coords[0]][coords[1]] != 0) {
+        coords = genRandomTile();
     }
+    board[coords[0]][coords[1]] = (tile == 0) ? 4 : 2;
 }
 
 function genRandomTile() {
@@ -185,8 +184,8 @@ function printScore() {
 }
 
 function restart() {
-    document.getElementById('gameOver').style.opacity = 0;
-    document.getElementById('victory').style.opacity = 0;
+    document.getElementById('gameOver').classList.add("hidden");
+    document.getElementById('victory').classList.add("hidden");
 
     goalReached = false;
     board = [
@@ -202,13 +201,16 @@ function restart() {
 }
 
 function printGameOver() {
-    document.getElementById('gameOver').style.opacity = 100;
-    document.getElementById('gameOver').style.pointerEvents = "all";
+    document.getElementById('gameOver').classList.remove("hidden");
 }
 
 function printVictory() {
-    document.getElementById('victory').style.opacity = 100;
-    document.getElementById('victory').style.pointerEvents = "all";
+    document.getElementById('victory').classList.remove("hidden");
+}
+
+function continuePlaying() {
+    document.getElementById('victory').innerHTML = "";
+    document.getElementById('victory').remove();
 }
 
 spawnPiece();
@@ -216,10 +218,6 @@ renderBoard();
 printScore();
 
 document.addEventListener("keydown", function (event) {
-    if (checkGameOver()) {
-        printGameOver();
-        return;
-    }
 
     let boardCopy = board.map(row => row.slice());
     switch (event.key) {
@@ -246,20 +244,26 @@ document.addEventListener("keydown", function (event) {
     if (!checkGameOver() && moved) { spawnPiece(); }
     printScore();
     renderBoard();
+
+    if (checkGameOver()) {
+        printGameOver();
+        return;
+    }
+
     if (goalReached) {
         printVictory();
         return;
     }
 })
 
-document.getElementById('gameOver').style.opacity = 0;
-document.getElementById('gameOver').style.pointerEvents = "none";
-document.getElementById('victory').style.opacity = 0;
-document.getElementById('victory').style.pointerEvents = "none";
+document.getElementById('gameOver').classList.add("hidden");
+document.getElementById('victory').classList.add("hidden");
 
 let retryButton = document.getElementById("retry");
 retryButton.addEventListener('click', restart);
+
 let restartButton = document.getElementById("restart");
-retryButton.addEventListener('click', restart);
-let victoryButton = document.getElementById("victory");
-retryButton.addEventListener('click', restart);
+restartButton.addEventListener('click', restart);
+
+let continueButton = document.getElementById("continue");
+continueButton.addEventListener('click', continuePlaying);

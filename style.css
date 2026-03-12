@@ -95,6 +95,10 @@ body {
     align-items: center;
 }
 
-.victory p{
+.victory p {
     margin: 5px;
+}
+
+.hidden {
+    display: none;
 }

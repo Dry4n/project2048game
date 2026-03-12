@@ -1,31 +1,60 @@
-const tileColors = {
-    0: "#e0e0e0",
-    2: "#cce5ff",
-    4: "#99cbff",
-    8: "#66b0ff",
-    16: "#3395ff",
-    32: "#0077ff",
-    64: "#0055cc",
-    128: "#6600cc",
-    256: "#7b00bb",
-    512: "#9900aa",
-    1024: "#cc6600",
-    2048: "#ffaa00",
+// const tileColors = {
+//     0: "#e0e0e0",
+//     2: "#cce5ff",
+//     4: "#99cbff",
+//     8: "#66b0ff",
+//     16: "#3395ff",
+//     32: "#0077ff",
+//     64: "#0055cc",
+//     128: "#6600cc",
+//     256: "#7b00bb",
+//     512: "#9900aa",
+//     1024: "#cc6600",
+//     2048: "#ffaa00",
 
+// }
+
+// const textColors = {
+//     0: "#e0e0e0",
+//     2: "#333333",
+//     4: "#333333",
+//     8: "#ffffff",
+//     16: "#ffffff",
+//     32: "#ffffff",
+//     64: "#ffffff",
+//     128: "#ffffff",
+//     256: "#ffffff",
+//     512: "#ffffff",
+//     1024: "#ffffff",
+//     2048: "#1a1a1a",
+// }
+const tileColors = {
+    0:    "#d9d9d9",
+    2:    "#a8c8e8",
+    4:    "#5ba3d9",
+    8:    "#ff9f5b",
+    16:   "#ff7043",
+    32:   "#ff3d2e",
+    64:   "#e8001a",
+    128:  "#c2006e",
+    256:  "#744786",
+    512:  "#6a00ff",
+    1024: "#ffe854",
+    2048: "#ffcc00",
 }
 
 const textColors = {
-    0: "#e0e0e0",
-    2: "#333333",
-    4: "#333333",
-    8: "#ffffff",
-    16: "#ffffff",
-    32: "#ffffff",
-    64: "#ffffff",
-    128: "#ffffff",
-    256: "#ffffff",
-    512: "#ffffff",
-    1024: "#ffffff",
+    0:    "#888888",
+    2:    "#444444",
+    4:    "#ffffff",
+    8:    "#ffffff",
+    16:   "#ffffff",
+    32:   "#ffffff",
+    64:   "#ffffff",
+    128:  "#ffffff",
+    256:  "#ffffff",
+    512:  "#ffffff",
+    1024: "#1a1a1a",
     2048: "#1a1a1a",
 }
 
@@ -33,9 +62,9 @@ let goalReached = false;
 let score = 0;
 let moved = false;
 let board = [
-    [0, 0, 0, 0],
-    [0, 0, 0, 0],
-    [0, 0, 0, 0],
+    [2, 4, 8, 16],
+    [256, 128, 64, 32],
+    [512, 1024, 2048, 4096],
     [0, 0, 0, 0],
 ]
 
@@ -257,7 +286,7 @@ document.addEventListener("keydown", function (event) {
 })
 
 document.getElementById('gameOver').classList.add("hidden");
-document.getElementById('victory').classList.add("hidden");
+// document.getElementById('victory').classList.add("hidden");
 
 let retryButton = document.getElementById("retry");
 retryButton.addEventListener('click', restart);

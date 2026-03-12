@@ -286,7 +286,7 @@ document.addEventListener("keydown", function (event) {
 })
 
 document.getElementById('gameOver').classList.add("hidden");
-// document.getElementById('victory').classList.add("hidden");
+document.getElementById('victory').classList.add("hidden");
 
 let retryButton = document.getElementById("retry");
 retryButton.addEventListener('click', restart);

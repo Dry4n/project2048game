@@ -1,5 +1,5 @@
 body {
-    background-color: #b6ada5;
+    background-color: #25343F;
 }
 
 .gameFrame {
@@ -7,16 +7,16 @@ body {
 }
 
 .scoreBoard {
-    background-color: #E0E0E0;
+    background-color: #2a3a4a;
     padding: 20px 0;
     margin: 1rem auto;
     width: 20%;
     border-radius: 9999px;
-    font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+    font-family: "DM Sans", sans-serif;
     text-align: center;
     font-weight: bolder;
-    font-size: larger;
-    color: #25343F;
+    font-size: 1.5rem;
+    color: #e0e0e0;
 }
 
 .board {
@@ -31,16 +31,14 @@ body {
 }
 
 .tile {
-    background-color: #EAEFEF;
     border-radius: 10%;
     margin: 5px;
     height: 100px;
     width: 100px;
     text-align: center;
     align-content: center;
-    font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
-    font-weight: bolder;
-    font-size: larger;
+    font-family: "Bebas Neue", sans-serif;
+    font-size: 3.5rem;
     color: #25343F;
 }
 
@@ -50,25 +48,29 @@ body {
     left: 50%;
     transform: translate(-50%, -50%);
     padding: 10px 40px;
-    border-radius: 25px;
+    border-top: 5px solid black;
     z-index: 9999;
-    background-color: #FFC067;
-    font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+    background-color: #ff3d2e;
     font-size: 3rem;
     color: #25343F;
     display: flex;
     flex-direction: column;
     align-items: center;
+    animation: shake 0.5s;
+}
+
+.gameOver h1 {
+    font-family: "Bebas Neue", sans-serif;
+    font-size: 3.5rem;
 }
 
 .retry {
     background-color: #EAEFEF;
     border: none;
-    margin-top: -20px;
     padding: 10px 20px;
     border-radius: 9999px;
     font-size: 1rem;
-    font-family: inherit;
+    font-family: "DM Sans", sans-serif;
     font-weight: bolder;
 }
 
@@ -83,12 +85,10 @@ body {
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    padding: 30px 40px;
-    border: 5px solid #0288D1;
-    border-radius: 0 0 200px 200px;
+    padding: 15px 20px;
+    border-top: 5px solid #1a1a1a;
     z-index: 9999;
     background-color: #ffcc00;
-    font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
     font-size: 3rem;
     color: #25343F;
     display: flex;
@@ -97,7 +97,15 @@ body {
     animation: bounce 1s;
 }
 
+.victory h1 {
+    font-family: "Bebas Neue", sans-serif;
+    margin: 5px;
+    font-size: 3.5rem;
+}
+
 .victory p {
+    font-family: "DM Sans", sans-serif;
+    font-size: 1rem;
     margin: 5px;
 }
 
@@ -116,5 +124,41 @@ body {
 
     100% {
         transform: translate(-50%, -50%) scale(100%);
+    }
+}
+
+@keyframes shake {
+    0% {
+        transform: translate(-43%, -50%);   
+    }
+    10% {
+        transform: translate(-58%, -50%);   
+    }
+    20% {
+        transform: translate(-43%, -50%);   
+    }
+    30% {
+        transform: translate(-58%, -50%);   
+    }
+    40% {
+        transform: translate(-46%, -50%);   
+    }
+    50% {
+        transform: translate(-54%, -50%);   
+    }
+    60% {
+        transform: translate(-46%, -50%);   
+    }
+    70% {
+        transform: translate(-54%, -50%);   
+    }
+    80% {
+        transform: translate(-48%, -50%);   
+    }
+    90% {
+        transform: translate(-52%, -50%);   
+    }
+    100% {
+        transform: translate(-50%, -50%);   
     }
 }

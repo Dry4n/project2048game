@@ -14,6 +14,7 @@
 </head>
 
 <body>
+    <div class="overlay hidden" id="overlay"></div>
     <div class="gameFrame" id="gameFrame">
         <div class="scoreBoard" id="scoreBoard"></div>
         <div class="board">
@@ -42,11 +43,11 @@
                 <div class="tile" id="33"></div>
             </div>
         </div>
-        <div class="gameOver" id="gameOver">
+        <div class="gameOver hidden" id="gameOver">
             <h1>Game Over</h1>
             <button id="retry" class="retry">Try again</button>
         </div>
-        <div class="victory" id="victory">
+        <div class="victory hidden" id="victory">
             <h1>💎 Victory! 💎</h1>
             <p>You reached 2048</p>
             <div class="victoryButtons">

@@ -6,6 +6,14 @@ body {
     margin: 0 auto;
 }
 
+.overlay {
+    position: fixed;
+    inset: 0;
+    background-color: rgba(0, 0, 0, 0.6);
+    z-index: 9998;
+    transition: opacity 0.2 ease;
+}
+
 .scoreBoard {
     background-color: #2a3a4a;
     padding: 20px 0;
@@ -129,36 +137,46 @@ body {
 
 @keyframes shake {
     0% {
-        transform: translate(-43%, -50%);   
+        transform: translate(-43%, -50%);
     }
+
     10% {
-        transform: translate(-58%, -50%);   
+        transform: translate(-58%, -50%);
     }
+
     20% {
-        transform: translate(-43%, -50%);   
+        transform: translate(-43%, -50%);
     }
+
     30% {
-        transform: translate(-58%, -50%);   
+        transform: translate(-58%, -50%);
     }
+
     40% {
-        transform: translate(-46%, -50%);   
+        transform: translate(-46%, -50%);
     }
+
     50% {
-        transform: translate(-54%, -50%);   
+        transform: translate(-54%, -50%);
     }
+
     60% {
-        transform: translate(-46%, -50%);   
+        transform: translate(-46%, -50%);
     }
+
     70% {
-        transform: translate(-54%, -50%);   
+        transform: translate(-54%, -50%);
     }
+
     80% {
-        transform: translate(-48%, -50%);   
+        transform: translate(-48%, -50%);
     }
+
     90% {
-        transform: translate(-52%, -50%);   
+        transform: translate(-52%, -50%);
     }
+
     100% {
-        transform: translate(-50%, -50%);   
+        transform: translate(-50%, -50%);
     }
 }

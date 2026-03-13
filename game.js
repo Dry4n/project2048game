@@ -28,36 +28,37 @@
 //     2048: "#1a1a1a",
 // }
 const tileColors = {
-    0:    "#2a3a4a",
-    2:    "#1a5276",
-    4:    "#1f6fa8",
-    8:    "#2389c9",
-    16:   "#4a90d9",
-    32:   "#7b68ee",
-    64:   "#9b4dca",
-    128:  "#b833a1",
-    256:  "#cc3377",
-    512:  "#e8954a",
+    0: "#2a3a4a",
+    2: "#1a5276",
+    4: "#1f6fa8",
+    8: "#2389c9",
+    16: "#4a90d9",
+    32: "#7b68ee",
+    64: "#9b4dca",
+    128: "#b833a1",
+    256: "#cc3377",
+    512: "#e8954a",
     1024: "#f0b429",
     2048: "#ffcc00",
 }
 
 const textColors = {
-    0:    "#4a6a7a",
-    2:    "#ffffff",
-    4:    "#ffffff",
-    8:    "#ffffff",
-    16:   "#ffffff",
-    32:   "#ffffff",
-    64:   "#ffffff",
-    128:  "#ffffff",
-    256:  "#ffffff",
-    512:  "#ffffff",
+    0: "#4a6a7a",
+    2: "#ffffff",
+    4: "#ffffff",
+    8: "#ffffff",
+    16: "#ffffff",
+    32: "#ffffff",
+    64: "#ffffff",
+    128: "#ffffff",
+    256: "#ffffff",
+    512: "#ffffff",
     1024: "#ffffff",
     2048: "#1a1a1a",
 }
 
 let goalReached = false;
+let victorySeen = false;
 let score = 0;
 let moved = false;
 let board = [
@@ -67,6 +68,12 @@ let board = [
     [0, 0, 0, 0]
 
 ]
+// let board = [
+//     [0, 0, 0, 0],
+//     [2, 4, 8, 16],
+//     [256, 128, 64, 32],
+//     [512, 1024, 2, 2]
+// ]
 
 function renderBoard() {
     for (let i = 0; i < board.length; i++) {
@@ -215,8 +222,10 @@ function printScore() {
 function restart() {
     document.getElementById('gameOver').classList.add("hidden");
     document.getElementById('victory').classList.add("hidden");
+    hideOverlay();
 
     goalReached = false;
+    victorySeen = false;
     board = [
         [0, 0, 0, 0],
         [0, 0, 0, 0],
@@ -231,15 +240,26 @@ function restart() {
 
 function printGameOver() {
     document.getElementById('gameOver').classList.remove("hidden");
+    showOverlay();
 }
 
 function printVictory() {
     document.getElementById('victory').classList.remove("hidden");
+    showOverlay();
 }
 
 function continuePlaying() {
-    document.getElementById('victory').innerHTML = "";
-    document.getElementById('victory').remove();
+    document.getElementById('victory').classList.add("hidden");
+    hideOverlay();
+    victorySeen = true;
+}
+
+function showOverlay() {
+    document.getElementById("overlay").classList.remove("hidden");
+}
+
+function hideOverlay() {
+    document.getElementById("overlay").classList.add("hidden");
 }
 
 spawnPiece();
@@ -279,14 +299,11 @@ document.addEventListener("keydown", function (event) {
         return;
     }
 
-    if (goalReached) {
+    if (goalReached && !victorySeen) {
         printVictory();
         return;
     }
 })
-
-document.getElementById('gameOver').classList.add("hidden");
-document.getElementById('victory').classList.add("hidden");
 
 let retryButton = document.getElementById("retry");
 retryButton.addEventListener('click', restart);

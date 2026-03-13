@@ -1,0 +1,7 @@
+animations for tile movement
+animations for adding score + scoreboard rework
+gameover/victory screens remaster
+block movement on victory screen
+make fonts local
+best score tracking (with localStorage)
+keyboard accessibility (enter to restart)

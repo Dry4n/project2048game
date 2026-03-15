@@ -1,3 +1,7 @@
+Bugs:
+    Fix goalReached reset Bugs
+    Guard spawnPiece infinite loop
+
 animations for tile movement
 animations for adding score + scoreboard rework
 gameover/victory screens remaster

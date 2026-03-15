@@ -234,6 +234,7 @@ function restart() {
     ]
     score = 0;
     spawnPiece();
+    spawnPiece();
     renderBoard();
     printScore();
 }
@@ -262,6 +263,7 @@ function hideOverlay() {
     document.getElementById("overlay").classList.add("hidden");
 }
 
+spawnPiece();
 spawnPiece();
 renderBoard();
 printScore();

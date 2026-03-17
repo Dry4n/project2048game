@@ -54,9 +54,10 @@ const textColors = {
     256: "#ffffff",
     512: "#ffffff",
     1024: "#ffffff",
-    2048: "#1a1a1a",
+    2048: "#004c8e",
 }
 
+let overlayDisplayed = false;
 let goalReached = false;
 let victorySeen = false;
 let score = 0;
@@ -257,10 +258,12 @@ function continuePlaying() {
 
 function showOverlay() {
     document.getElementById("overlay").classList.remove("hidden");
+    overlayDisplayed = true;
 }
 
 function hideOverlay() {
     document.getElementById("overlay").classList.add("hidden");
+    overlayDisplayed = false;
 }
 
 spawnPiece();
@@ -270,7 +273,11 @@ printScore();
 
 document.addEventListener("keydown", function (event) {
 
-    let boardCopy = board.map(row => row.slice());
+    if (overlayDisplayed){
+        return;
+    }
+
+        let boardCopy = board.map(row => row.slice());
     switch (event.key) {
         case 'ArrowLeft':
             moveLeft();
@@ -312,6 +319,9 @@ retryButton.addEventListener('click', restart);
 
 let restartButton = document.getElementById("restart");
 restartButton.addEventListener('click', restart);
+
+let restartBoardBtn = document.getElementById("restartBtn");
+restartBoardBtn.addEventListener('click', restart);
 
 let continueButton = document.getElementById("continue");
 continueButton.addEventListener('click', continuePlaying);

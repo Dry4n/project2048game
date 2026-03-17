@@ -121,6 +121,29 @@ body {
     display: none;
 }
 
+.resetBoard {
+    display: flex;
+    justify-content: center;
+    margin-top: 2em;
+}
+
+.resetBtn {
+    font-family: "DM Sans", sans-serif;
+    font-size: 1.3rem;
+    background-color: #1a5276;
+    color: #ffffff;
+    border-radius: 9999px;
+    padding: 10px 1rem;
+    border: none;
+    font-weight: bolder;
+}
+
+.resetBtn:hover {
+    background-color: #ff3d2e;
+    color: #ffffff;
+    cursor: pointer;
+}
+
 @keyframes bounce {
     0% {
         transform: translate(-50%, -50%) scale(5%);

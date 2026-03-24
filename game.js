@@ -57,6 +57,12 @@ const textColors = {
     2048: "#004c8e",
 }
 
+if (localStorage.getItem('bestScore') === null) {
+    localStorage.setItem('bestScore', '0');
+} else {
+    best = localStorage.getItem('bestScore');
+}
+
 let overlayDisplayed = false;
 let goalReached = false;
 let victorySeen = false;
@@ -218,6 +224,7 @@ function compareBoards(boardCopy) {
 
 function printScore() {
     document.getElementById("scoreBoard").innerHTML = `Score: ${score}`
+    document.getElementById("bestScore").innerHTML = `Best: ${best}`
 }
 
 function restart() {
@@ -266,6 +273,13 @@ function hideOverlay() {
     overlayDisplayed = false;
 }
 
+function updateBestScore(){
+    if (score > Number(best)){
+        best = score;
+        localStorage.setItem('bestScore', score);
+    }
+}
+
 spawnPiece();
 spawnPiece();
 renderBoard();
@@ -273,11 +287,11 @@ printScore();
 
 document.addEventListener("keydown", function (event) {
 
-    if (overlayDisplayed){
+    if (overlayDisplayed) {
         return;
     }
 
-        let boardCopy = board.map(row => row.slice());
+    let boardCopy = board.map(row => row.slice());
     switch (event.key) {
         case 'ArrowLeft':
             moveLeft();
@@ -300,6 +314,7 @@ document.addEventListener("keydown", function (event) {
             break;
     }
     if (!checkGameOver() && moved) { spawnPiece(); }
+    updateBestScore();
     printScore();
     renderBoard();
 

@@ -18,7 +18,11 @@ A dark-themed version of the classic **2048** game, built with vanilla JavaScrip
 
 ## Screenshot
 
-A gameplay screenshot or GIF will be added here as a future presentation improvement.
+<img width="451" height="616" alt="image" src="https://github.com/user-attachments/assets/11cee8c5-ec55-41f0-b772-9e7e84f21edf" />
+<img width="466" height="632" alt="image" src="https://github.com/user-attachments/assets/ebaf0b90-8759-4f8f-8d84-cac90b75568e" />
+<img width="457" height="627" alt="image" src="https://github.com/user-attachments/assets/1e12eedd-0673-4376-a080-78330cd34a8f" />
+
+
 
 ## Tech stack
 

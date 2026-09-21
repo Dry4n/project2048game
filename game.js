@@ -57,11 +57,8 @@ const textColors = {
     2048: "#004c8e",
 }
 
-if (localStorage.getItem('bestScore') === null) {
-    localStorage.setItem('bestScore', '0');
-} else {
-    best = localStorage.getItem('bestScore');
-}
+let best = Number(localStorage.getItem('bestScore')) || 0;
+localStorage.setItem('bestScore', String(best));
 
 let overlayDisplayed = false;
 let goalReached = false;

@@ -11,38 +11,48 @@
         rel="stylesheet">
     <link rel="stylesheet" href="style.css">
     <link rel="icon" href="./img/icon2048.svg">
-    <title>2048 game</title>
+    <title>dark2048</title>
 </head>
 
 <body>
     <div class="overlay hidden" id="overlay"></div>
     <div class="gameFrame" id="gameFrame">
-        <div class="bestScore" id="bestScore"></div>
-        <div class="scoreBoard" id="scoreBoard"></div>
-        <div class="board">
-            <div class="boardRow">
-                <div class="tile" id="00"></div>
-                <div class="tile" id="01"></div>
-                <div class="tile" id="02"></div>
-                <div class="tile" id="03"></div>
+        <div class="scoreArea">
+            <div class="scoreBox">
+                <span class="scoreLabel">SCORE</span>
+                <div id="scoreBoard" class="scoreBoard"></div>
             </div>
-            <div class="boardRow">
-                <div class="tile" id="10"></div>
-                <div class="tile" id="11"></div>
-                <div class="tile" id="12"></div>
-                <div class="tile" id="13"></div>
+            <div class="scoreBox">
+                <span class="scoreLabel">BEST</span>
+                <div id="bestScore" class="bestScore"></div>
             </div>
-            <div class="boardRow">
-                <div class="tile" id="20"></div>
-                <div class="tile" id="21"></div>
-                <div class="tile" id="22"></div>
-                <div class="tile" id="23"></div>
-            </div>
-            <div class="boardRow">
-                <div class="tile" id="30"></div>
-                <div class="tile" id="31"></div>
-                <div class="tile" id="32"></div>
-                <div class="tile" id="33"></div>
+        </div>
+        <div class="boardContainer">
+            <div class="board">
+                <div class="boardRow">
+                    <div class="tile" id="00"></div>
+                    <div class="tile" id="01"></div>
+                    <div class="tile" id="02"></div>
+                    <div class="tile" id="03"></div>
+                </div>
+                <div class="boardRow">
+                    <div class="tile" id="10"></div>
+                    <div class="tile" id="11"></div>
+                    <div class="tile" id="12"></div>
+                    <div class="tile" id="13"></div>
+                </div>
+                <div class="boardRow">
+                    <div class="tile" id="20"></div>
+                    <div class="tile" id="21"></div>
+                    <div class="tile" id="22"></div>
+                    <div class="tile" id="23"></div>
+                </div>
+                <div class="boardRow">
+                    <div class="tile" id="30"></div>
+                    <div class="tile" id="31"></div>
+                    <div class="tile" id="32"></div>
+                    <div class="tile" id="33"></div>
+                </div>
             </div>
         </div>
         <div class="gameOver hidden" id="gameOver">
@@ -57,9 +67,9 @@
                 <button id="continue" class="retry">Continue</button>
             </div>
         </div>
-    </div>
-    <div class="resetBoard" id="resetBoard">
-        <button class="resetBtn" id="restartBtn">↺</button>
+        <div class="resetBoard" id="resetBoard">
+            <button class="resetBtn" id="restartBtn" aria-label="Restart game">↺</button>
+        </div>
     </div>
 
     <script src="game.js"></script>

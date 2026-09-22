@@ -261,8 +261,8 @@ function compareBoards(boardCopy) {
 }
 
 function printScore() {
-    document.getElementById("scoreBoard").innerHTML = `Score: ${score}`
-    document.getElementById("bestScore").innerHTML = `Best: ${best}`
+    document.getElementById("scoreBoard").textContent = score;
+    document.getElementById("bestScore").textContent = best;
 }
 
 function restart() {

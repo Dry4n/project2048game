@@ -60,6 +60,8 @@ const textColors = {
 let best = Number(localStorage.getItem('bestScore')) || 0;
 localStorage.setItem('bestScore', String(best));
 
+const savedGameKey = 'gameState';
+
 let overlayDisplayed = false;
 let goalReached = false;
 let victorySeen = false;
@@ -72,6 +74,43 @@ let board = [
     [0, 0, 0, 0]
 
 ]
+
+function isValidBoard(savedBoard) {
+    return Array.isArray(savedBoard)
+        && savedBoard.length === 4
+        && savedBoard.every(row => Array.isArray(row)
+            && row.length === 4
+            && row.every(tile => Number.isInteger(tile) && tile >= 0));
+}
+
+function loadGame() {
+    try {
+        const savedGame = JSON.parse(localStorage.getItem(savedGameKey));
+
+        if (!savedGame || !isValidBoard(savedGame.board)
+            || !Number.isFinite(savedGame.score) || savedGame.score < 0) {
+            return false;
+        }
+
+        board = savedGame.board;
+        score = savedGame.score;
+        goalReached = Boolean(savedGame.goalReached);
+        victorySeen = Boolean(savedGame.victorySeen);
+        return true;
+    } catch (error) {
+        localStorage.removeItem(savedGameKey);
+        return false;
+    }
+}
+
+function saveGame() {
+    localStorage.setItem(savedGameKey, JSON.stringify({
+        board,
+        score,
+        goalReached,
+        victorySeen
+    }));
+}
 // let board = [
 //     [0, 0, 0, 0],
 //     [2, 4, 8, 16],
@@ -159,7 +198,9 @@ function moveLeft() {
                 if (row[i] == row[i + 1]) {
                     row[i] *= 2
                     score += row[i];
-                    goalReached = row[i] == 2048 ? true : false;
+                    if (row[i] == 2048) {
+                        goalReached = true;
+                    }
                     row.splice(i + 1, 1)
                 }
             }
@@ -240,6 +281,7 @@ function restart() {
     score = 0;
     spawnPiece();
     spawnPiece();
+    saveGame();
     renderBoard();
     printScore();
 }
@@ -258,6 +300,7 @@ function continuePlaying() {
     document.getElementById('victory').classList.add("hidden");
     hideOverlay();
     victorySeen = true;
+    saveGame();
 }
 
 function showOverlay() {
@@ -277,10 +320,19 @@ function updateBestScore(){
     }
 }
 
-spawnPiece();
-spawnPiece();
+if (!loadGame()) {
+    spawnPiece();
+    spawnPiece();
+    saveGame();
+}
 renderBoard();
 printScore();
+
+if (checkGameOver()) {
+    printGameOver();
+} else if (goalReached && !victorySeen) {
+    printVictory();
+}
 
 document.addEventListener("keydown", function (event) {
 
@@ -312,6 +364,7 @@ document.addEventListener("keydown", function (event) {
     }
     if (!checkGameOver() && moved) { spawnPiece(); }
     updateBestScore();
+    saveGame();
     printScore();
     renderBoard();
 

@@ -152,9 +152,10 @@ function animateMovement(movements) {
     movements.forEach(({ from, to, value }) => {
         const sourceRect = tileElement(from).getBoundingClientRect();
         const targetRect = tileElement(to).getBoundingClientRect();
-        const clone = document.createElement('div');
-        clone.className = 'movingTile';
-        clone.textContent = value;
+        const clone = tileElement(from).cloneNode(true);
+        clone.removeAttribute('id');
+        clone.classList.remove('tileSpawn', 'tileMerge');
+        clone.classList.add('movingTile');
         Object.assign(clone.style, {
             left: `${sourceRect.left - containerRect.left}px`,
             top: `${sourceRect.top - containerRect.top}px`,

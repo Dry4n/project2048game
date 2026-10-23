@@ -11,7 +11,8 @@ const textColors = {
 };
 
 const savedGameKey = 'gameState';
-const moveDuration = 145;
+const moveDuration = 115;
+const settleDuration = 135;
 const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
 let best = Number(localStorage.getItem('bestScore')) || 0;
 let overlayDisplayed = false;
@@ -19,6 +20,8 @@ let goalReached = false;
 let victorySeen = false;
 let score = 0;
 let isAnimating = false;
+let pendingDirection = null;
+let moveSequence = 0;
 let board = createEmptyBoard();
 
 localStorage.setItem('bestScore', String(best));
@@ -186,6 +189,16 @@ function animateSettledTiles(spawnedCell, mergedCells) {
     if (spawnedCell) replayClass(tileElement(spawnedCell), 'tileSpawn');
 }
 
+function clearTransientAnimations() {
+    document.querySelectorAll('.tileSpawn, .tileMerge').forEach(tile => {
+        tile.classList.remove('tileSpawn', 'tileMerge');
+    });
+}
+
+function wait(milliseconds) {
+    return new Promise(resolve => window.setTimeout(resolve, milliseconds));
+}
+
 function isBoardFull() {
     return board.every(row => row.every(value => value !== 0));
 }
@@ -209,6 +222,7 @@ function animateScore(scoreGain, bestChanged) {
         const scoreValue = document.getElementById('scoreBoard');
         replayClass(scoreValue, 'scoreBump');
         if (!reducedMotion.matches) {
+            document.querySelectorAll('.scoreGain').forEach(element => element.remove());
             const gain = document.createElement('span');
             gain.className = 'scoreGain';
             gain.textContent = `+${scoreGain}`;
@@ -233,25 +247,53 @@ function updateBestScore() {
 }
 
 async function handleMove(direction) {
-    if (overlayDisplayed || isAnimating) return;
+    if (overlayDisplayed) return;
+    if (isAnimating) {
+        pendingDirection = direction;
+        return;
+    }
     const move = calculateMove(direction);
     if (!move.changed) return;
     isAnimating = true;
+    clearTransientAnimations();
+    const currentMove = ++moveSequence;
     board = move.nextBoard;
     score += move.scoreGain;
     const bestChanged = updateBestScore();
     await animateMovement(move.movements);
+    if (currentMove !== moveSequence) return;
     const spawnedCell = spawnPiece();
     renderBoard();
     printScore(move.scoreGain, bestChanged);
     animateSettledTiles(spawnedCell, move.mergedCells);
     saveGame();
+    await wait(reducedMotion.matches ? 0 : settleDuration);
+    if (currentMove !== moveSequence) return;
+    clearTransientAnimations();
     isAnimating = false;
-    if (checkGameOver()) printGameOver();
-    else if (goalReached && !victorySeen) printVictory();
+    if (checkGameOver()) {
+        pendingDirection = null;
+        printGameOver();
+        return;
+    }
+    if (goalReached && !victorySeen) {
+        pendingDirection = null;
+        printVictory();
+        return;
+    }
+
+    const queuedDirection = pendingDirection;
+    pendingDirection = null;
+    if (queuedDirection) handleMove(queuedDirection);
 }
 
 function restart() {
+    moveSequence += 1;
+    isAnimating = false;
+    pendingDirection = null;
+    document.querySelectorAll('.movementLayer').forEach(layer => layer.remove());
+    document.querySelector('.boardContainer').classList.remove('isMoving');
+    clearTransientAnimations();
     document.getElementById('gameOver').classList.add('hidden');
     document.getElementById('victory').classList.add('hidden');
     hideOverlay();

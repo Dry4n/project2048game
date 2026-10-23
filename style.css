@@ -54,6 +54,7 @@ body {
 }
 
 .scoreBox {
+    position: relative;
     min-width: 100px;
     padding: 12px 32px;
     border-radius: 12px;
@@ -94,6 +95,7 @@ body {
 }
 
 .boardContainer {
+    position: relative;
     padding: 10px;
     border-radius: 12px;
     background-color: var(--board-bg);
@@ -120,6 +122,56 @@ body {
     font-size: 3.5rem;
     text-align: center;
     align-content: center;
+    transform-origin: center;
+}
+
+.movementLayer {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    pointer-events: none;
+}
+
+.movingTile {
+    position: absolute;
+    display: grid;
+    place-items: center;
+    border-radius: 10%;
+    font-family: "Bebas Neue", sans-serif;
+    font-size: 3.5rem;
+    line-height: 1;
+    will-change: transform;
+}
+
+.boardContainer.isMoving .tile {
+    background-color: #2a3a4a !important;
+    color: transparent !important;
+}
+
+.tileSpawn {
+    animation: tileSpawn 180ms cubic-bezier(.2, .9, .35, 1.25);
+}
+
+.tileMerge {
+    position: relative;
+    z-index: 1;
+    animation: tileMerge 210ms cubic-bezier(.2, .85, .3, 1.35);
+}
+
+.scoreBump {
+    animation: scoreBump 190ms ease-out;
+}
+
+.scoreGain {
+    position: absolute;
+    top: 50%;
+    right: 12px;
+    color: var(--muted-text);
+    font-family: "DM Sans", sans-serif;
+    font-size: 0.78rem;
+    font-weight: 800;
+    pointer-events: none;
+    animation: scoreGain 650ms ease-out forwards;
 }
 
 .gameOver,
@@ -257,6 +309,10 @@ button:focus-visible {
         font-size: clamp(1.9rem, 10vw, 2.6rem);
     }
 
+    .movingTile {
+        font-size: clamp(1.9rem, 10vw, 2.6rem);
+    }
+
     .resetBoard {
         margin-top: 0.8rem;
     }
@@ -317,6 +373,30 @@ button:focus-visible {
     80% { transform: translate(-48%, -50%); }
     90% { transform: translate(-52%, -50%); }
     100% { transform: translate(-50%, -50%); }
+}
+
+@keyframes tileSpawn {
+    0% { transform: scale(0.35); opacity: 0; }
+    70% { transform: scale(1.08); opacity: 1; }
+    100% { transform: scale(1); opacity: 1; }
+}
+
+@keyframes tileMerge {
+    0% { transform: scale(1); }
+    55% { transform: scale(1.16); }
+    100% { transform: scale(1); }
+}
+
+@keyframes scoreBump {
+    0% { transform: translateY(0) scale(1); }
+    45% { transform: translateY(-2px) scale(1.12); }
+    100% { transform: translateY(0) scale(1); }
+}
+
+@keyframes scoreGain {
+    0% { transform: translateY(0); opacity: 0; }
+    20% { opacity: 1; }
+    100% { transform: translateY(-24px); opacity: 0; }
 }
 
 @media (prefers-reduced-motion: reduce) {

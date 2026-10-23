@@ -1,97 +1,43 @@
-// const tileColors = {
-//     0: "#424d57",
-//     2: "#a8c8e8",
-//     4: "#5ba3d9",
-//     8: "#ff9f5b",
-//     16: "#ff7043",
-//     32: "#ff3d2e",
-//     64: "#9c0516",
-//     128: "#c2006e",
-//     256: "#744786",
-//     512: "#6a00ff",
-//     1024: "#ffe854",
-//     2048: "#ffcc00",
-// }
-
-// const textColors = {
-//     0: "#888888",
-//     2: "#444444",
-//     4: "#ffffff",
-//     8: "#ffffff",
-//     16: "#ffffff",
-//     32: "#ffffff",
-//     64: "#ffffff",
-//     128: "#ffffff",
-//     256: "#ffffff",
-//     512: "#ffffff",
-//     1024: "#1a1a1a",
-//     2048: "#1a1a1a",
-// }
 const tileColors = {
-    0: "#2a3a4a",
-    2: "#1a5276",
-    4: "#1f6fa8",
-    8: "#2389c9",
-    16: "#4a90d9",
-    32: "#7b68ee",
-    64: "#9b4dca",
-    128: "#b833a1",
-    256: "#cc3377",
-    512: "#e8954a",
-    1024: "#f0b429",
-    2048: "#ffcc00",
-}
+    0: "#2a3a4a", 2: "#1a5276", 4: "#1f6fa8", 8: "#2389c9",
+    16: "#4a90d9", 32: "#7b68ee", 64: "#9b4dca", 128: "#b833a1",
+    256: "#cc3377", 512: "#e8954a", 1024: "#f0b429", 2048: "#ffcc00",
+};
 
 const textColors = {
-    0: "#4a6a7a",
-    2: "#ffffff",
-    4: "#ffffff",
-    8: "#ffffff",
-    16: "#ffffff",
-    32: "#ffffff",
-    64: "#ffffff",
-    128: "#ffffff",
-    256: "#ffffff",
-    512: "#ffffff",
-    1024: "#ffffff",
-    2048: "#004c8e",
-}
-
-let best = Number(localStorage.getItem('bestScore')) || 0;
-localStorage.setItem('bestScore', String(best));
+    0: "#4a6a7a", 2: "#ffffff", 4: "#ffffff", 8: "#ffffff",
+    16: "#ffffff", 32: "#ffffff", 64: "#ffffff", 128: "#ffffff",
+    256: "#ffffff", 512: "#ffffff", 1024: "#ffffff", 2048: "#004c8e",
+};
 
 const savedGameKey = 'gameState';
-
+const moveDuration = 145;
+const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+let best = Number(localStorage.getItem('bestScore')) || 0;
 let overlayDisplayed = false;
 let goalReached = false;
 let victorySeen = false;
 let score = 0;
-let moved = false;
-let board = [
-    [0, 0, 0, 0],
-    [0, 0, 0, 0],
-    [0, 0, 0, 0],
-    [0, 0, 0, 0]
+let isAnimating = false;
+let board = createEmptyBoard();
 
-]
+localStorage.setItem('bestScore', String(best));
+
+function createEmptyBoard() {
+    return Array.from({ length: 4 }, () => [0, 0, 0, 0]);
+}
 
 function isValidBoard(savedBoard) {
-    return Array.isArray(savedBoard)
-        && savedBoard.length === 4
-        && savedBoard.every(row => Array.isArray(row)
-            && row.length === 4
+    return Array.isArray(savedBoard) && savedBoard.length === 4
+        && savedBoard.every(row => Array.isArray(row) && row.length === 4
             && row.every(tile => Number.isInteger(tile) && tile >= 0));
 }
 
 function loadGame() {
     try {
         const savedGame = JSON.parse(localStorage.getItem(savedGameKey));
-
         if (!savedGame || !isValidBoard(savedGame.board)
-            || !Number.isFinite(savedGame.score) || savedGame.score < 0) {
-            return false;
-        }
-
+            || !Number.isFinite(savedGame.score) || savedGame.score < 0) return false;
         board = savedGame.board;
         score = savedGame.score;
         goalReached = Boolean(savedGame.goalReached);
@@ -104,220 +50,248 @@ function loadGame() {
 }
 
 function saveGame() {
-    localStorage.setItem(savedGameKey, JSON.stringify({
-        board,
-        score,
-        goalReached,
-        victorySeen
-    }));
+    localStorage.setItem(savedGameKey, JSON.stringify({ board, score, goalReached, victorySeen }));
 }
-// let board = [
-//     [0, 0, 0, 0],
-//     [2, 4, 8, 16],
-//     [256, 128, 64, 32],
-//     [512, 1024, 2, 2]
-// ]
+
+function tileElement([row, column]) {
+    return document.getElementById(`${row}${column}`);
+}
 
 function renderBoard() {
-    for (let i = 0; i < board.length; i++) {
-        for (let j = 0; j < board.length; j++) {
-            let id = "" + i + j;
-            document.getElementById(id).innerHTML = board[i][j] != 0 ? board[i][j] : "";
-            document.getElementById(id).style.backgroundColor = tileColors[board[i][j]] || "#FFCC00";
-            document.getElementById(id).style.color = textColors[board[i][j]] || "#004c8e";
+    for (let row = 0; row < 4; row++) {
+        for (let column = 0; column < 4; column++) {
+            const value = board[row][column];
+            const tile = tileElement([row, column]);
+            tile.textContent = value === 0 ? '' : value;
+            tile.style.backgroundColor = tileColors[value] || tileColors[2048];
+            tile.style.color = textColors[value] || textColors[2048];
         }
     }
+}
+
+function randomEmptyCell() {
+    const emptyCells = [];
+    for (let row = 0; row < 4; row++) {
+        for (let column = 0; column < 4; column++) {
+            if (board[row][column] === 0) emptyCells.push([row, column]);
+        }
+    }
+    return emptyCells[Math.floor(Math.random() * emptyCells.length)];
 }
 
 function spawnPiece() {
-    let coords = genRandomTile();
-    let tile = Math.round(Math.random() * 9);
+    const coords = randomEmptyCell();
+    if (!coords) return null;
+    board[coords[0]][coords[1]] = Math.random() < 0.1 ? 4 : 2;
+    return coords;
+}
 
-    while (board[coords[0]][coords[1]] != 0) {
-        coords = genRandomTile();
+function getLines(direction) {
+    const lines = [];
+    for (let index = 0; index < 4; index++) {
+        if (direction === 'left') lines.push([0, 1, 2, 3].map(column => [index, column]));
+        if (direction === 'right') lines.push([3, 2, 1, 0].map(column => [index, column]));
+        if (direction === 'up') lines.push([0, 1, 2, 3].map(row => [row, index]));
+        if (direction === 'down') lines.push([3, 2, 1, 0].map(row => [row, index]));
     }
-    board[coords[0]][coords[1]] = (tile == 0) ? 4 : 2;
+    return lines;
 }
 
-function genRandomTile() {
-    let x = Math.round(Math.random() * 3)
-    let y = Math.round(Math.random() * 3)
-    return [x, y]
+function calculateMove(direction) {
+    const nextBoard = createEmptyBoard();
+    const movements = [];
+    const mergedCells = [];
+    let scoreGain = 0;
+
+    for (const line of getLines(direction)) {
+        const tiles = line.map(coords => ({ coords, value: board[coords[0]][coords[1]] }))
+            .filter(tile => tile.value !== 0);
+        let sourceIndex = 0;
+        let destinationIndex = 0;
+
+        while (sourceIndex < tiles.length) {
+            const current = tiles[sourceIndex];
+            const next = tiles[sourceIndex + 1];
+            const destination = line[destinationIndex];
+
+            if (next && current.value === next.value) {
+                const mergedValue = current.value * 2;
+                nextBoard[destination[0]][destination[1]] = mergedValue;
+                movements.push({ from: current.coords, to: destination, value: current.value });
+                movements.push({ from: next.coords, to: destination, value: next.value });
+                mergedCells.push(destination);
+                scoreGain += mergedValue;
+                if (mergedValue === 2048) goalReached = true;
+                sourceIndex += 2;
+            } else {
+                nextBoard[destination[0]][destination[1]] = current.value;
+                movements.push({ from: current.coords, to: destination, value: current.value });
+                sourceIndex += 1;
+            }
+            destinationIndex += 1;
+        }
+    }
+
+    const changed = board.some((row, rowIndex) =>
+        row.some((value, columnIndex) => value !== nextBoard[rowIndex][columnIndex]));
+    return { changed, nextBoard, movements, mergedCells, scoreGain };
 }
 
+function animateMovement(movements) {
+    if (reducedMotion.matches) return Promise.resolve();
+    const container = document.querySelector('.boardContainer');
+    const containerRect = container.getBoundingClientRect();
+    const layer = document.createElement('div');
+    layer.className = 'movementLayer';
+    container.appendChild(layer);
+    container.classList.add('isMoving');
 
-function checkGameOver() {
-    return (isBoardFull() && !hasValidMoves());
+    const animations = movements.map(({ from, to, value }) => {
+        const sourceRect = tileElement(from).getBoundingClientRect();
+        const targetRect = tileElement(to).getBoundingClientRect();
+        const clone = document.createElement('div');
+        clone.className = 'movingTile';
+        clone.textContent = value;
+        Object.assign(clone.style, {
+            left: `${sourceRect.left - containerRect.left}px`,
+            top: `${sourceRect.top - containerRect.top}px`,
+            width: `${sourceRect.width}px`, height: `${sourceRect.height}px`,
+            backgroundColor: tileColors[value] || tileColors[2048],
+            color: textColors[value] || textColors[2048],
+        });
+        layer.appendChild(clone);
+        return clone.animate([
+            { transform: 'translate3d(0, 0, 0)' },
+            { transform: `translate3d(${targetRect.left - sourceRect.left}px, ${targetRect.top - sourceRect.top}px, 0)` },
+        ], { duration: moveDuration, easing: 'cubic-bezier(.22,.8,.3,1)', fill: 'forwards' }).finished;
+    });
+
+    return Promise.allSettled(animations).then(() => {
+        layer.remove();
+        container.classList.remove('isMoving');
+    });
+}
+
+function replayClass(element, className) {
+    element.classList.remove(className);
+    void element.offsetWidth;
+    element.classList.add(className);
+}
+
+function animateSettledTiles(spawnedCell, mergedCells) {
+    mergedCells.forEach(coords => replayClass(tileElement(coords), 'tileMerge'));
+    if (spawnedCell) replayClass(tileElement(spawnedCell), 'tileSpawn');
 }
 
 function isBoardFull() {
-    for (let i = 0; i < board.length; i++) {
-        for (let j = 0; j < board.length; j++) {
-            if (board[i][j] == 0) {
-                return false
-            }
-        }
-    }
-    return true;
+    return board.every(row => row.every(value => value !== 0));
 }
 
 function hasValidMoves() {
-    for (let i = 0; i < board.length; i++) {
-        for (let j = 0; j < board.length - 1; j++) {
-            if (board[i][j] == board[i][j + 1]) {
-                return true;
-            }
-        }
-    }
-    for (let i = 0; i < board.length - 1; i++) {
-        for (let j = 0; j < board.length; j++) {
-            if (board[i][j] == board[i + 1][j]) {
-                return true;
-            }
+    for (let row = 0; row < 4; row++) {
+        for (let column = 0; column < 4; column++) {
+            if (column < 3 && board[row][column] === board[row][column + 1]) return true;
+            if (row < 3 && board[row][column] === board[row + 1][column]) return true;
         }
     }
     return false;
 }
 
-function moveLeft() {
-    //Quitamos 0s
-    for (const row of board) {
-        for (let i = 0; i < row.length; i++) {
-            if (row[i] == 0) {
-                row.splice(i, 1);
-                i--;
-                console.log(row);
-            }
-        }
-    }
-
-    //Mergeamos tiles
-    for (const row of board) {
-        if (row.length > 1) {
-            for (let i = 0; i < row.length; i++) {
-                if (row[i] == row[i + 1]) {
-                    row[i] *= 2
-                    score += row[i];
-                    if (row[i] == 2048) {
-                        goalReached = true;
-                    }
-                    row.splice(i + 1, 1)
-                }
-            }
-        }
-        //Añadimos 0s al final
-        while (row.length < 4) {
-            row.push(0);
-        }
-    }
-
+function checkGameOver() {
+    return isBoardFull() && !hasValidMoves();
 }
 
-function moveRight() {
-    for (let i = 0; i < board.length; i++) {
-        board[i].reverse();
-    }
-    moveLeft();
-    for (let i = 0; i < board.length; i++) {
-        board[i].reverse();
-    }
-}
-
-function moveUp() {
-    transposeBoard();
-    moveLeft();
-    transposeBoard();
-}
-
-function moveDown() {
-    transposeBoard();
-    moveRight();
-    transposeBoard();
-}
-
-function transposeBoard() {
-    let transposed = new Array(board.length)
-
-    for (let i = 0; i < board.length; i++) {
-        transposed[i] = new Array(board.length)
-    }
-
-    for (let i = 0; i < board.length; i++) {
-        for (let j = 0; j < board.length; j++) {
-            transposed[i][j] = board[j][i];
+function animateScore(scoreGain, bestChanged) {
+    if (scoreGain > 0) {
+        const scoreValue = document.getElementById('scoreBoard');
+        replayClass(scoreValue, 'scoreBump');
+        if (!reducedMotion.matches) {
+            const gain = document.createElement('span');
+            gain.className = 'scoreGain';
+            gain.textContent = `+${scoreGain}`;
+            scoreValue.closest('.scoreBox').appendChild(gain);
+            gain.addEventListener('animationend', () => gain.remove(), { once: true });
         }
     }
-    board = transposed;
+    if (bestChanged) replayClass(document.getElementById('bestScore'), 'scoreBump');
 }
 
-function compareBoards(boardCopy) {
-    for (let i = 0; i < board.length; i++) {
-        for (let j = 0; j < board.length; j++) {
-            if (boardCopy[i][j] !== board[i][j])
-                return false;
-        }
-    }
+function printScore(scoreGain = 0, bestChanged = false) {
+    document.getElementById('scoreBoard').textContent = score;
+    document.getElementById('bestScore').textContent = best;
+    animateScore(scoreGain, bestChanged);
+}
+
+function updateBestScore() {
+    if (score <= best) return false;
+    best = score;
+    localStorage.setItem('bestScore', String(score));
     return true;
 }
 
-function printScore() {
-    document.getElementById("scoreBoard").textContent = score;
-    document.getElementById("bestScore").textContent = best;
+async function handleMove(direction) {
+    if (overlayDisplayed || isAnimating) return;
+    const move = calculateMove(direction);
+    if (!move.changed) return;
+    isAnimating = true;
+    board = move.nextBoard;
+    score += move.scoreGain;
+    const bestChanged = updateBestScore();
+    await animateMovement(move.movements);
+    const spawnedCell = spawnPiece();
+    renderBoard();
+    printScore(move.scoreGain, bestChanged);
+    animateSettledTiles(spawnedCell, move.mergedCells);
+    saveGame();
+    isAnimating = false;
+    if (checkGameOver()) printGameOver();
+    else if (goalReached && !victorySeen) printVictory();
 }
 
 function restart() {
-    document.getElementById('gameOver').classList.add("hidden");
-    document.getElementById('victory').classList.add("hidden");
+    document.getElementById('gameOver').classList.add('hidden');
+    document.getElementById('victory').classList.add('hidden');
     hideOverlay();
-
     goalReached = false;
     victorySeen = false;
-    board = [
-        [0, 0, 0, 0],
-        [0, 0, 0, 0],
-        [0, 0, 0, 0],
-        [0, 0, 0, 0]
-    ]
     score = 0;
-    spawnPiece();
-    spawnPiece();
+    board = createEmptyBoard();
+    const firstCell = spawnPiece();
+    const secondCell = spawnPiece();
     saveGame();
     renderBoard();
     printScore();
+    animateSettledTiles(firstCell, []);
+    window.setTimeout(() => {
+        if (secondCell) replayClass(tileElement(secondCell), 'tileSpawn');
+    }, reducedMotion.matches ? 0 : 70);
 }
 
 function printGameOver() {
-    document.getElementById('gameOver').classList.remove("hidden");
+    document.getElementById('gameOver').classList.remove('hidden');
     showOverlay();
 }
 
 function printVictory() {
-    document.getElementById('victory').classList.remove("hidden");
+    document.getElementById('victory').classList.remove('hidden');
     showOverlay();
 }
 
 function continuePlaying() {
-    document.getElementById('victory').classList.add("hidden");
+    document.getElementById('victory').classList.add('hidden');
     hideOverlay();
     victorySeen = true;
     saveGame();
 }
 
 function showOverlay() {
-    document.getElementById("overlay").classList.remove("hidden");
+    document.getElementById('overlay').classList.remove('hidden');
     overlayDisplayed = true;
 }
 
 function hideOverlay() {
-    document.getElementById("overlay").classList.add("hidden");
+    document.getElementById('overlay').classList.add('hidden');
     overlayDisplayed = false;
-}
-
-function updateBestScore(){
-    if (score > Number(best)){
-        best = score;
-        localStorage.setItem('bestScore', score);
-    }
 }
 
 if (!loadGame()) {
@@ -327,66 +301,21 @@ if (!loadGame()) {
 }
 renderBoard();
 printScore();
+if (checkGameOver()) printGameOver();
+else if (goalReached && !victorySeen) printVictory();
 
-if (checkGameOver()) {
-    printGameOver();
-} else if (goalReached && !victorySeen) {
-    printVictory();
-}
+const directionByKey = {
+    ArrowLeft: 'left', ArrowUp: 'up', ArrowRight: 'right', ArrowDown: 'down',
+};
 
-document.addEventListener("keydown", function (event) {
+document.addEventListener('keydown', event => {
+    const direction = directionByKey[event.key];
+    if (!direction) return;
+    event.preventDefault();
+    handleMove(direction);
+});
 
-    if (overlayDisplayed) {
-        return;
-    }
-
-    let boardCopy = board.map(row => row.slice());
-    switch (event.key) {
-        case 'ArrowLeft':
-            moveLeft();
-            moved = !compareBoards(boardCopy);
-            break;
-        case 'ArrowUp':
-            moveUp();
-            moved = !compareBoards(boardCopy);
-            break;
-        case 'ArrowRight':
-            moveRight();
-            moved = !compareBoards(boardCopy);
-            break;
-        case 'ArrowDown':
-            moveDown();
-            moved = !compareBoards(boardCopy);
-            break;
-        default:
-            moved = false;
-            break;
-    }
-    if (!checkGameOver() && moved) { spawnPiece(); }
-    updateBestScore();
-    saveGame();
-    printScore();
-    renderBoard();
-
-    if (checkGameOver()) {
-        printGameOver();
-        return;
-    }
-
-    if (goalReached && !victorySeen) {
-        printVictory();
-        return;
-    }
-})
-
-let retryButton = document.getElementById("retry");
-retryButton.addEventListener('click', restart);
-
-let restartButton = document.getElementById("restart");
-restartButton.addEventListener('click', restart);
-
-let restartBoardBtn = document.getElementById("restartBtn");
-restartBoardBtn.addEventListener('click', restart);
-
-let continueButton = document.getElementById("continue");
-continueButton.addEventListener('click', continuePlaying);
+document.getElementById('retry').addEventListener('click', restart);
+document.getElementById('restart').addEventListener('click', restart);
+document.getElementById('restartBtn').addEventListener('click', restart);
+document.getElementById('continue').addEventListener('click', continuePlaying);

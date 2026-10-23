@@ -136,17 +136,12 @@ body {
 
 .movingTile {
     position: absolute;
-    display: grid;
-    place-items: center;
-    border-radius: 10%;
-    font-family: "Bebas Neue", sans-serif;
-    font-size: 3.5rem;
-    line-height: 1;
-    text-align: center;
+    contain: layout paint;
+    backface-visibility: hidden;
     will-change: transform;
 }
 
-.boardContainer.isMoving .tile {
+.boardContainer.isMoving .board .tile {
     background-color: #2a3a4a !important;
     color: transparent !important;
 }
@@ -309,10 +304,6 @@ button:focus-visible {
     .tile {
         width: min(74px, calc((100vw - 70px) / 4));
         height: min(74px, calc((100vw - 70px) / 4));
-        font-size: clamp(1.9rem, 10vw, 2.6rem);
-    }
-
-    .movingTile {
         font-size: clamp(1.9rem, 10vw, 2.6rem);
     }
 

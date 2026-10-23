@@ -116,12 +116,14 @@ body {
 .tile {
     width: 100px;
     height: 100px;
+    display: grid;
+    place-items: center;
     border-radius: 10%;
     color: var(--page-bg);
     font-family: "Bebas Neue", sans-serif;
     font-size: 3.5rem;
+    line-height: 1;
     text-align: center;
-    align-content: center;
     transform-origin: center;
 }
 
@@ -140,6 +142,7 @@ body {
     font-family: "Bebas Neue", sans-serif;
     font-size: 3.5rem;
     line-height: 1;
+    text-align: center;
     will-change: transform;
 }
 

@@ -227,7 +227,7 @@ function animateScore(scoreGain, bestChanged) {
             gain.className = 'scoreGain';
             gain.textContent = `+${scoreGain}`;
             scoreValue.closest('.scoreBox').appendChild(gain);
-            gain.addEventListener('animationend', () => gain.remove(), { once: true });
+            window.setTimeout(() => gain.remove(), 700);
         }
     }
     if (bestChanged) replayClass(document.getElementById('bestScore'), 'scoreBump');

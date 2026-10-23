@@ -43,6 +43,8 @@ function boot({ reduced = false, initial } = {}) {
         animate(frames, options) {
             assert.ok(frames.every(frame => !('transform' in frame)), 'slides never transform text');
             assert.equal(options.duration, 115);
+            assert.equal(options.fill, 'both', 'the resting start frame must be held while playback is pending');
+            assert.match(frames[0].easing, /^steps\([1-9]\d*, end\)$/);
             const animation = { frames, cancelled: false, cancel() { this.cancelled = true; } };
             this.lastAnimation = animation;
             return animation;
@@ -133,7 +135,7 @@ test('a slide retains the actual tile and label, including after settling', asyn
     assert.equal(tile.style.top, '226px');
     assert.equal(tile.firstChild, label);
     assert.deepEqual(plain(tile.lastAnimation.frames), [
-        { left: '334px', top: '226px' }, { left: '10px', top: '226px' },
+        { left: '334px', top: '226px', easing: 'steps(324, end)' }, { left: '10px', top: '226px' },
     ]);
     await env.drain(); await moving;
     assert.equal(env.game.tiles.get('2,0'), tile);

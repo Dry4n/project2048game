@@ -23,6 +23,8 @@ let isAnimating = false;
 let pendingDirection = null;
 let moveSequence = 0;
 let board = createEmptyBoard();
+let renderedTiles = new Map();
+const activeSlides = new Set();
 
 localStorage.setItem('bestScore', String(best));
 
@@ -56,18 +58,83 @@ function saveGame() {
     localStorage.setItem(savedGameKey, JSON.stringify({ board, score, goalReached, victorySeen }));
 }
 
-function tileElement([row, column]) {
+function cellElement([row, column]) {
     return document.getElementById(`${row}${column}`);
 }
 
+function tileElement(coords) {
+    return renderedTiles.get(coords.join(','));
+}
+
+function tilePosition(coords) {
+    const cell = cellElement(coords);
+    // offset coordinates are local layout values, unaffected by page centering,
+    // subpixel viewport origins, zoom or visual effects on another tile.
+    return { left: cell.offsetLeft, top: cell.offsetTop,
+        width: cell.offsetWidth, height: cell.offsetHeight };
+}
+
+function placeTile(tile, coords) {
+    const { left, top, width, height } = tilePosition(coords);
+    Object.assign(tile.style, {
+        left: `${left}px`, top: `${top}px`,
+        width: `${width}px`, height: `${height}px`,
+    });
+}
+
+function createTile(value) {
+    const tile = document.createElement('div');
+    tile.className = 'tile gameTile';
+    const label = document.createElement('span');
+    label.className = 'tileLabel';
+    tile.appendChild(label);
+    document.querySelector('.tileLayer').appendChild(tile);
+    updateTile(tile, value);
+    return tile;
+}
+
+function updateTile(tile, value) {
+    // Keep the label node too: no text re-parenting at the start/end of a slide.
+    if (tile.firstChild.textContent !== String(value)) {
+        tile.firstChild.textContent = String(value);
+    }
+    tile.dataset.value = String(value);
+    tile.style.backgroundColor = tileColors[value] || tileColors[2048];
+    tile.style.color = textColors[value] || textColors[2048];
+}
+
+function initializeTileLayer() {
+    document.querySelectorAll('.board .tile').forEach(cell => {
+        cell.classList.replace('tile', 'boardCell');
+        cell.setAttribute('aria-hidden', 'true');
+    });
+    const layer = document.createElement('div');
+    layer.className = 'tileLayer';
+    document.querySelector('.boardContainer').appendChild(layer);
+}
+
 function renderBoard() {
+    const visibleKeys = new Set();
     for (let row = 0; row < 4; row++) {
         for (let column = 0; column < 4; column++) {
             const value = board[row][column];
-            const tile = tileElement([row, column]);
-            tile.textContent = value === 0 ? '' : value;
-            tile.style.backgroundColor = tileColors[value] || tileColors[2048];
-            tile.style.color = textColors[value] || textColors[2048];
+            if (value === 0) continue;
+            const coords = [row, column];
+            const key = coords.join(',');
+            visibleKeys.add(key);
+            let tile = renderedTiles.get(key);
+            if (!tile) {
+                tile = createTile(value);
+                renderedTiles.set(key, tile);
+            }
+            updateTile(tile, value);
+            placeTile(tile, coords);
+        }
+    }
+    for (const [key, tile] of renderedTiles) {
+        if (!visibleKeys.has(key)) {
+            tile.remove();
+            renderedTiles.delete(key);
         }
     }
 }
@@ -140,43 +207,40 @@ function calculateMove(direction) {
     return { changed, nextBoard, movements, mergedCells, scoreGain };
 }
 
-function animateMovement(movements) {
-    if (reducedMotion.matches) return Promise.resolve();
-    const container = document.querySelector('.boardContainer');
-    const containerRect = container.getBoundingClientRect();
-    const layer = document.createElement('div');
-    layer.className = 'movementLayer';
-    container.appendChild(layer);
-    container.classList.add('isMoving');
+async function animateMovement(movements, sequence) {
+    const nextTiles = new Map();
+    const consumedTiles = [];
+    const slides = [];
 
-    movements.forEach(({ from, to, value }) => {
-        const sourceRect = tileElement(from).getBoundingClientRect();
-        const targetRect = tileElement(to).getBoundingClientRect();
-        const clone = tileElement(from).cloneNode(true);
-        clone.removeAttribute('id');
-        clone.classList.remove('tileSpawn', 'tileMerge');
-        clone.classList.add('movingTile');
-        Object.assign(clone.style, {
-            left: `${sourceRect.left - containerRect.left}px`,
-            top: `${sourceRect.top - containerRect.top}px`,
-            width: `${sourceRect.width}px`, height: `${sourceRect.height}px`,
-            backgroundColor: tileColors[value] || tileColors[2048],
-            color: textColors[value] || textColors[2048],
-        });
-        layer.appendChild(clone);
-        clone.animate([
-            { transform: 'translate3d(0, 0, 0)' },
-            { transform: `translate3d(${targetRect.left - sourceRect.left}px, ${targetRect.top - sourceRect.top}px, 0)` },
-        ], { duration: moveDuration, easing: 'cubic-bezier(.22,.8,.3,1)', fill: 'forwards' });
-    });
+    for (const { from, to } of movements) {
+        const tile = tileElement(from);
+        const start = tilePosition(from);
+        const end = tilePosition(to);
+        const key = to.join(',');
+        if (nextTiles.has(key)) consumedTiles.push(tile);
+        else nextTiles.set(key, tile);
 
-    return new Promise(resolve => {
-        window.setTimeout(() => {
-            layer.remove();
-            container.classList.remove('isMoving');
-            resolve();
-        }, moveDuration + 20);
-    });
+        // Move the existing box using layout coordinates, not a temporary GPU
+        // transform. The text and its background keep the same rendering path.
+        placeTile(tile, to);
+        if (!reducedMotion.matches && (start.left !== end.left || start.top !== end.top)) {
+            const slide = tile.animate([
+                { left: `${start.left}px`, top: `${start.top}px` },
+                { left: `${end.left}px`, top: `${end.top}px` },
+            ], { duration: moveDuration, easing: 'cubic-bezier(.22,.8,.3,1)' });
+            activeSlides.add(slide);
+            slides.push(slide);
+        }
+    }
+
+    if (slides.length) await wait(moveDuration + 20);
+    for (const slide of slides) {
+        slide.cancel();
+        activeSlides.delete(slide);
+    }
+    if (sequence !== moveSequence) return;
+    consumedTiles.forEach(tile => tile.remove());
+    renderedTiles = nextTiles;
 }
 
 function replayClass(element, className) {
@@ -261,7 +325,7 @@ async function handleMove(direction) {
     board = move.nextBoard;
     score += move.scoreGain;
     const bestChanged = updateBestScore();
-    await animateMovement(move.movements);
+    await animateMovement(move.movements, currentMove);
     if (currentMove !== moveSequence) return;
     const spawnedCell = spawnPiece();
     renderBoard();
@@ -292,8 +356,10 @@ function restart() {
     moveSequence += 1;
     isAnimating = false;
     pendingDirection = null;
-    document.querySelectorAll('.movementLayer').forEach(layer => layer.remove());
-    document.querySelector('.boardContainer').classList.remove('isMoving');
+    activeSlides.forEach(slide => slide.cancel());
+    activeSlides.clear();
+    renderedTiles.forEach(tile => tile.remove());
+    renderedTiles.clear();
     clearTransientAnimations();
     document.getElementById('gameOver').classList.add('hidden');
     document.getElementById('victory').classList.add('hidden');
@@ -308,9 +374,7 @@ function restart() {
     renderBoard();
     printScore();
     animateSettledTiles(firstCell, []);
-    window.setTimeout(() => {
-        if (secondCell) replayClass(tileElement(secondCell), 'tileSpawn');
-    }, reducedMotion.matches ? 0 : 70);
+    animateSettledTiles(secondCell, []);
 }
 
 function printGameOver() {
@@ -339,6 +403,14 @@ function hideOverlay() {
     document.getElementById('overlay').classList.add('hidden');
     overlayDisplayed = false;
 }
+
+initializeTileLayer();
+
+// The grid is the only geometry source. Reflow persistent pieces when the
+// popup/viewport changes size, including the mobile breakpoint.
+new ResizeObserver(() => {
+    renderedTiles.forEach((tile, key) => placeTile(tile, key.split(',').map(Number)));
+}).observe(document.querySelector('.board'));
 
 if (!loadGame()) {
     spawnPiece();

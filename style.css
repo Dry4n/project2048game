@@ -149,17 +149,17 @@ body {
 }
 
 .tileSpawn {
-    animation: tileSpawn 180ms cubic-bezier(.2, .9, .35, 1.25);
+    animation: tileSpawn 125ms cubic-bezier(.2, .9, .35, 1.25);
 }
 
 .tileMerge {
     position: relative;
     z-index: 1;
-    animation: tileMerge 210ms cubic-bezier(.2, .85, .3, 1.35);
+    animation: tileMerge 130ms cubic-bezier(.2, .85, .3, 1.35);
 }
 
 .scoreBump {
-    animation: scoreBump 190ms ease-out;
+    animation: scoreBump 120ms ease-out;
 }
 
 .scoreGain {

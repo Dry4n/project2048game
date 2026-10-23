@@ -224,10 +224,22 @@ async function animateMovement(movements, sequence) {
         // transform. The text and its background keep the same rendering path.
         placeTile(tile, to);
         if (!reducedMotion.matches && (start.left !== end.left || start.top !== end.top)) {
+            // Preserve the resting glyph's subpixel phase. Fractional left/top
+            // interpolation re-rasterizes its edges at a different offset as
+            // soon as a move starts, even when the label's box stays centered.
+            // The outer easing controls speed; the keyframe easing quantizes
+            // each axis-aligned move to 1 CSS px without changing typography.
+            const pixelSteps = Math.max(Math.abs(end.left - start.left), Math.abs(end.top - start.top));
             const slide = tile.animate([
-                { left: `${start.left}px`, top: `${start.top}px` },
+                { left: `${start.left}px`, top: `${start.top}px`, easing: `steps(${pixelSteps}, end)` },
                 { left: `${end.left}px`, top: `${end.top}px` },
-            ], { duration: moveDuration, easing: 'cubic-bezier(.22,.8,.3,1)' });
+            ], {
+                duration: moveDuration,
+                easing: 'cubic-bezier(.22,.8,.3,1)',
+                // Include the pending first frame and the time before cleanup:
+                // never briefly expose the destination style before sliding.
+                fill: 'both',
+            });
             activeSlides.add(slide);
             slides.push(slide);
         }

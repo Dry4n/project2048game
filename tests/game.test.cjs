@@ -158,6 +158,24 @@ test('merges retain one original tile and label; consumed pieces are removed', a
     assert.equal(env.game.tiles.size, 3); // two merges plus the spawned tile
 });
 
+test('all twelve tile values keep their own label in all four directions', async () => {
+    for (const value of [2, 4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048, 4096]) {
+        for (const [direction, from, to] of [
+            ['left', [1, 3], [1, 0]], ['right', [1, 0], [1, 3]],
+            ['up', [3, 1], [0, 1]], ['down', [0, 1], [3, 1]],
+        ]) {
+            const env = boot(); const input = empty(); input[from[0]][from[1]] = value;
+            env.game.seed(input);
+            const tile = env.game.tiles.get(from.join(','));
+            const label = tile.firstChild;
+            env.game.move(direction); await env.drain();
+            assert.equal(env.game.tiles.get(to.join(',')), tile);
+            assert.equal(tile.firstChild, label);
+            assert.equal(label.textContent, String(value));
+        }
+    }
+});
+
 test('fast keys retain only the most recent queued direction', async () => {
     const env = boot(); const input = empty(); input[0][3] = 16;
     env.game.seed(input);

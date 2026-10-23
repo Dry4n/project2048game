@@ -146,7 +146,7 @@ function animateMovement(movements) {
     container.appendChild(layer);
     container.classList.add('isMoving');
 
-    const animations = movements.map(({ from, to, value }) => {
+    movements.forEach(({ from, to, value }) => {
         const sourceRect = tileElement(from).getBoundingClientRect();
         const targetRect = tileElement(to).getBoundingClientRect();
         const clone = document.createElement('div');
@@ -160,15 +160,18 @@ function animateMovement(movements) {
             color: textColors[value] || textColors[2048],
         });
         layer.appendChild(clone);
-        return clone.animate([
+        clone.animate([
             { transform: 'translate3d(0, 0, 0)' },
             { transform: `translate3d(${targetRect.left - sourceRect.left}px, ${targetRect.top - sourceRect.top}px, 0)` },
-        ], { duration: moveDuration, easing: 'cubic-bezier(.22,.8,.3,1)', fill: 'forwards' }).finished;
+        ], { duration: moveDuration, easing: 'cubic-bezier(.22,.8,.3,1)', fill: 'forwards' });
     });
 
-    return Promise.allSettled(animations).then(() => {
-        layer.remove();
-        container.classList.remove('isMoving');
+    return new Promise(resolve => {
+        window.setTimeout(() => {
+            layer.remove();
+            container.classList.remove('isMoving');
+            resolve();
+        }, moveDuration + 20);
     });
 }
 
